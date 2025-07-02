@@ -1,12 +1,14 @@
 import express from 'express'
 import cors from 'cors'
-import userRoutes from './modules/user/user.route'
+import userRoutes from './modules/user/user.routes'
+
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
-app.use('/api/v1/users', userRoutes)
+app.use('/user', userRoutes)
 
 export default app
+

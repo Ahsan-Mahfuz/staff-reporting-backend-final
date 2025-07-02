@@ -1,13 +1,16 @@
-import dotenv from 'dotenv'
-dotenv.config()
-
 import app from './app'
+import { config } from './config'
+import { connectDB } from './config/db'
 
-const PORT = process.env.PORT || 5000
+connectDB()
 
-app.use('/', (req, res) => {
-  res.send('ChatApplication server is running perfectly!')
+const PORT = config.port
+const HOST = config.host
+
+app.get('/', (_req, res) => {
+  res.send('Staff reporting server is running perfectly!')
 })
+
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`)
+  console.log(`Server is running at http://${HOST}:${PORT}`)
 })
