@@ -75,11 +75,37 @@ export const getMyClients = async (
   try {
     const adminId = (req as any).user?.userId
 
-    const clients = await ClientModel.find({ createdBy: adminId })
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 10
+    const skip = (page - 1) * limit
+
+    const { search } = req.query
+
+    let filter: any = { createdBy: adminId }
+
+    if (search && typeof search === 'string') {
+      const regex = new RegExp(search, 'i')
+      filter.$or = [
+        { name: regex },
+        { phoneNumber: regex },
+        { location: regex },
+        { userId: regex },
+      ]
+    }
+
+    const totalClients = await ClientModel.countDocuments(filter)
+
+    const clients = await ClientModel.find(filter).skip(skip).limit(limit)
 
     res.status(200).json({
       message: 'Clients fetched successfully',
       data: clients,
+      pagination: {
+        total: totalClients,
+        page,
+        limit,
+        pages: Math.ceil(totalClients / limit),
+      },
     })
   } catch (error) {
     next(error)

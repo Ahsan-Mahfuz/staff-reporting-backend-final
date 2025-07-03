@@ -1,5 +1,5 @@
 import express from 'express'
-import { createClient } from './client.controller'
+import { createClient, getMyClients } from './client.controller'
 import { upload } from '../../middlewares/upload'
 import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
 
@@ -11,5 +11,6 @@ clientRoutes.post(
   upload.single('clientImage'),
   createClient
 )
+clientRoutes.post('/get-all-my-clients', authenticateAdmin, getMyClients)
 
 export default clientRoutes
