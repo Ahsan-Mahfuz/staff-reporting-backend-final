@@ -4,6 +4,8 @@ interface IUser {
   name: string
   email: string
   password: string
+  resetCode?: number | null
+  resetCodeExpires: Date | null
 }
 
 const userSchema = new Schema<IUser>(
@@ -20,6 +22,14 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true,
+    },
+    resetCode: {
+      type: Number,
+      default: null,
+    },
+    resetCodeExpires: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

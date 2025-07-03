@@ -6,7 +6,3 @@ export const createToken = (payload: object) => {
     expiresIn: config.jwt_expires_in as jwt.SignOptions['expiresIn'],
   })
 }
-
-export const verifyToken = (token: string) => {
-  return jwt.verify(token, config.jwt_secret)
-}
