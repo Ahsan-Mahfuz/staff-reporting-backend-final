@@ -67,6 +67,84 @@ export const createClient = async (
   }
 }
 
+export const editClient = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { clientId } = req.params
+    const { client } = req.body
+    const parsedClient = JSON.parse(client)
+
+    const clientImage = req.file?.mimetype || ''
+    const validatedData = createSchema.parse({
+      ...parsedClient,
+      clientImage,
+    })
+
+    const adminId = (req as any).user?.userId
+
+    if (!adminId) {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized. No admin ID found.' })
+    }
+
+    const targetClient = await ClientModel.findOne({
+      _id: clientId,
+      createdBy: adminId,
+    })
+
+    if (!targetClient) {
+      return res
+        .status(404)
+        .json({ message: 'Client not found or access denied.' })
+    }
+
+    const generatedUserId =
+      parsedClient.name.toLowerCase().replace(/\s+/g, '') +
+      parsedClient.phoneNumber
+
+    const duplicate = await ClientModel.findOne({
+      userId: generatedUserId,
+      _id: { $ne: clientId },
+    })
+    if (duplicate) {
+      return res.status(409).json({
+        message:
+          'Another client with this name and phone number already exists.',
+      })
+    }
+
+    const imageUrl = req.file
+      ? `/picture/client_image/${req.file.filename}`
+      : targetClient.clientImage
+
+    targetClient.name = parsedClient.name
+    targetClient.phoneNumber = parsedClient.phoneNumber
+    targetClient.location = parsedClient.location
+    targetClient.rates = parsedClient.rates
+    targetClient.userId = generatedUserId
+    targetClient.clientImage = imageUrl
+
+    await targetClient.save()
+
+    res.status(200).json({
+      message: 'Client updated successfully',
+      data: targetClient,
+    })
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: error.errors.map((err) => err.message),
+      })
+    }
+    next(error)
+  }
+}
+
 export const getMyClients = async (
   req: Request,
   res: Response,
@@ -106,6 +184,38 @@ export const getMyClients = async (
         limit,
         pages: Math.ceil(totalClients / limit),
       },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getSingleClient = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const adminId = (req as any).user?.userId
+    const { clientId } = req.params
+
+    console.log(req.params)
+
+    const client = await ClientModel.findOne({
+      _id: clientId,
+      createdBy: adminId,
+    })
+
+    if (!client) {
+      res.status(404).json({
+        message: 'Client not found or access denied',
+      })
+      return
+    }
+
+    res.status(200).json({
+      message: 'Client fetched successfully',
+      data: client,
     })
   } catch (error) {
     next(error)
