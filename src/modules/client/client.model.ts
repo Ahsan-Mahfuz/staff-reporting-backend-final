@@ -6,8 +6,9 @@ interface IClient {
   rates: number
   location?: string
   phoneNumber: string
-  clientImage?: Buffer
+  clientImage?: string
   createdBy: Types.ObjectId
+  isBlocked: boolean
 }
 
 const clientSchema = new Schema<IClient>(
@@ -40,6 +41,10 @@ const clientSchema = new Schema<IClient>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

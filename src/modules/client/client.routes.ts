@@ -1,6 +1,8 @@
 import express from 'express'
 import {
+  blockUnblockClients,
   createClient,
+  editClient,
   getMyClients,
   getSingleClient,
 } from './client.controller'
@@ -15,7 +17,22 @@ clientRoutes.post(
   upload.single('clientImage'),
   createClient
 )
-clientRoutes.post('/get-all-my-clients', authenticateAdmin, getMyClients)
-clientRoutes.get('/get-single-client/:clientId', authenticateAdmin, getSingleClient)
+clientRoutes.patch(
+  '/update-client/:clientId',
+  authenticateAdmin,
+  upload.single('clientImage'),
+  editClient
+)
+clientRoutes.get('/get-all-my-clients', authenticateAdmin, getMyClients)
+clientRoutes.get(
+  '/get-single-client/:clientId',
+  authenticateAdmin,
+  getSingleClient
+)
+clientRoutes.patch(
+  '/block-unblock-client/:clientId',
+  authenticateAdmin,
+  blockUnblockClients
+)
 
 export default clientRoutes

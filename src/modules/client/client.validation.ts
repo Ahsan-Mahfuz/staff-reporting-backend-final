@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const createSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  location: z.string().min(1, 'Location is required').optional(),
+  location: z.string().optional(),
   phoneNumber: z.string().min(1, 'PhoneNumber is required'),
   rates: z.number().min(1, 'Rates is required and must be at least 1'),
   clientImage: z

@@ -86,9 +86,8 @@ export const editClient = async (
     const adminId = (req as any).user?.userId
 
     if (!adminId) {
-      return res
-        .status(401)
-        .json({ message: 'Unauthorized. No admin ID found.' })
+      res.status(401).json({ message: 'Unauthorized. No admin ID found.' })
+      return
     }
 
     const targetClient = await ClientModel.findOne({
@@ -97,9 +96,8 @@ export const editClient = async (
     })
 
     if (!targetClient) {
-      return res
-        .status(404)
-        .json({ message: 'Client not found or access denied.' })
+      res.status(404).json({ message: 'Client not found or access denied.' })
+      return
     }
 
     const generatedUserId =
@@ -111,10 +109,11 @@ export const editClient = async (
       _id: { $ne: clientId },
     })
     if (duplicate) {
-      return res.status(409).json({
+      res.status(409).json({
         message:
           'Another client with this name and phone number already exists.',
       })
+      return
     }
 
     const imageUrl = req.file
@@ -136,10 +135,11 @@ export const editClient = async (
     })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         message: 'Validation error',
         errors: error.errors.map((err) => err.message),
       })
+      return
     }
     next(error)
   }
@@ -199,8 +199,6 @@ export const getSingleClient = async (
     const adminId = (req as any).user?.userId
     const { clientId } = req.params
 
-    console.log(req.params)
-
     const client = await ClientModel.findOne({
       _id: clientId,
       createdBy: adminId,
@@ -216,6 +214,41 @@ export const getSingleClient = async (
     res.status(200).json({
       message: 'Client fetched successfully',
       data: client,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const blockUnblockClients = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const adminId = (req as any).user?.userId
+
+    const { clientId } = req.params
+
+    const client = await ClientModel.findOne({
+      _id: clientId,
+      createdBy: adminId,
+    })
+
+    if (!client) {
+      res.status(404).json({
+        message: 'Client not found or access denied',
+      })
+      return
+    }
+
+    client.isBlocked = !client.isBlocked
+    await client.save()
+
+    res.status(200).json({
+      message: client.isBlocked
+        ? 'Client blocked successfully'
+        : 'Client unblocked successfully',
     })
   } catch (error) {
     next(error)
