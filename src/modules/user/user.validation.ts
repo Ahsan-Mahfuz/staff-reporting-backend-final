@@ -34,8 +34,22 @@ export const setNewPasswordSchema = z
     message: 'Passwords do not match',
   })
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(6, 'Password must be at least 6 characters'),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  })
+
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type ForgetPasswordSchema = z.infer<typeof forgetPasswordSchema>
 export type VerificationCodeSchema = z.infer<typeof verificationCodeSchema>
 export type SetNewPasswordSchema = z.infer<typeof setNewPasswordSchema>
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>

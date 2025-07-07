@@ -22,7 +22,7 @@ export const createAOfficeNotice = async (
     }
 
     const createdNotice = await OfficeNoticeModel.create({
-      file: fileName,
+      file: req.file ? `/picture/office_notice/${req.file.filename}` : null,
       createdBy,
     })
 
@@ -42,54 +42,55 @@ export const createAOfficeNotice = async (
   }
 }
 
-// export const getMyOfficeNotices = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const userId = (req as any).user?._id
+export const getMyOfficeNotices = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.userId
 
-//     if (!userId) {
-//       return res.status(401).json({ message: 'Unauthorized access' })
-//     }
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
+    }
 
-//     const notices = await OfficeNoticeModel.find({ createdBy: userId }).sort({
-//       createdAt: -1,
-//     })
+    const notices = await OfficeNoticeModel.find({ createdBy: userId })
 
-//     res.status(200).json({
-//       message: 'Office notices fetched successfully',
-//       data: notices,
-//     })
-//   } catch (error) {
-//     next(error)
-//   }
-// }
+    res.status(200).json({
+      message: 'Office notices fetched successfully',
+      data: notices,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 
-// export const deleteOfficeNotice = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const userId = (req as any).user?._id
-//     const noticeId = req.params.id
+export const deleteOfficeNotice = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.userId
+    const noticeId = req.params.id
 
-//     const notice = await OfficeNoticeModel.findById(noticeId)
+    const notice = await OfficeNoticeModel.findById(noticeId)
 
-//     if (!notice) {
-//       return res.status(404).json({ message: 'Notice not found' })
-//     }
+    if (!notice) {
+      res.status(404).json({ message: 'Office notice not found' })
+      return
+    }
 
-//     if (notice.createdBy.toString() !== userId.toString()) {
-//       return res.status(403).json({ message: 'Forbidden: Not your notice' })
-//     }
+    if (notice.createdBy.toString() !== userId.toString()) {
+      res.status(403).json({ message: 'Forbidden: Not your notice' })
+      return
+    }
 
-//     await OfficeNoticeModel.findByIdAndDelete(noticeId)
+    await OfficeNoticeModel.findByIdAndDelete(noticeId)
 
-//     res.status(200).json({ message: 'Office notice deleted successfully' })
-//   } catch (error) {
-//     next(error)
-//   }
-// }
+    res.status(200).json({ message: 'Office notice deleted successfully' })
+  } catch (error) {
+    next(error)
+  }
+}

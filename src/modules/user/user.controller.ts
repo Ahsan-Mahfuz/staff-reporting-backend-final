@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { UserModel } from './user.model'
 import {
+  changePasswordSchema,
   forgetPasswordSchema,
   loginSchema,
   registerSchema,
@@ -262,6 +263,57 @@ export const setNewPasswordUser = async (
 
     res.status(200).json({
       message: 'Password has been updated successfully',
+    })
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation error',
+        errors: error.errors.map((err) => err.message),
+      })
+      return
+    }
+    next(error)
+  }
+}
+
+export const changePasswordUser = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const validatedData = changePasswordSchema.parse(req.body)
+    const { currentPassword, newPassword } = validatedData
+
+    const userId = req.user?.userId
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
+    }
+
+    const existingUser = await UserModel.findOne({ _id: userId })
+    if (!existingUser) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      existingUser.password
+    )
+    if (!isPasswordValid) {
+      res.status(400).json({ message: 'Invalid current password' })
+      return
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    existingUser.password = hashedPassword
+    await existingUser.save()
+
+    res.status(200).json({
+      message: 'Password has been changed successfully',
     })
   } catch (error: any) {
     if (error instanceof z.ZodError) {

@@ -1,5 +1,6 @@
 import express from 'express'
 import {
+  changePasswordUser,
   forgetPasswordUser,
   loginUser,
   registerUser,
@@ -7,6 +8,7 @@ import {
   verificationCodeUser,
 } from './user.controller'
 import { verifyCodeTokenMiddleware } from '../../middlewares/verifyCodeTokenMiddleware'
+import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
 
 const userRoutes = express.Router()
 
@@ -19,5 +21,6 @@ userRoutes.post(
   verifyCodeTokenMiddleware,
   setNewPasswordUser
 )
+userRoutes.post('/change-password', authenticateAdmin, changePasswordUser)
 
 export default userRoutes
