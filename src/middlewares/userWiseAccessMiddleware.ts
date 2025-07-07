@@ -28,7 +28,6 @@ export const authenticateAdmin = (
       email: decoded.email,
       name: decoded.name,
     }
-
     next()
   } catch (error) {
     res.status(401).json({ message: 'Invalid or expired token' })

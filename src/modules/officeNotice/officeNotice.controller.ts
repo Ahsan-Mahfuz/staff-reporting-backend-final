@@ -3,7 +3,7 @@ import { createOfficeNoticeSchema } from './officeNotice.validation'
 import { z } from 'zod'
 import { OfficeNoticeModel } from './officeNotice.model'
 
-export const createOfficeNotice = async (
+export const createAOfficeNotice = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -14,10 +14,11 @@ export const createOfficeNotice = async (
 
     createOfficeNoticeSchema.parse({ file: fileType })
 
-    const createdBy = (req as any).user?._id
+    const createdBy = (req as any).user?.userId
 
     if (!createdBy) {
-      return res.status(401).json({ message: 'Unauthorized access' })
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
     }
 
     const createdNotice = await OfficeNoticeModel.create({
@@ -65,8 +66,6 @@ export const createOfficeNotice = async (
 //     next(error)
 //   }
 // }
-
-
 
 // export const deleteOfficeNotice = async (
 //   req: Request,

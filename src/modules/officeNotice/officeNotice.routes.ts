@@ -1,22 +1,16 @@
 import express from 'express'
 
 import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
+import { uploadOfficeNotice } from '../../middlewares/officeNoticeUpload'
+import { createAOfficeNotice } from './officeNotice.controller'
 
 const officeNoticeRoutes = express.Router()
 
 officeNoticeRoutes.post(
-  '/create-client',
+  '/office-notice',
   authenticateAdmin,
-  upload.single('officeNotice'),
-  createClient
+  uploadOfficeNotice.single('officeNotice'),
+  createAOfficeNotice
 )
 
-officeNoticeRoutes.get('/get-all-my-clients', authenticateAdmin, getMyClients)
-
-officeNoticeRoutes.delete(
-  '/block-unblock-client/:clientId',
-  authenticateAdmin,
-  blockUnblockClients
-)
-
-export default clientRoutes
+export default officeNoticeRoutes
