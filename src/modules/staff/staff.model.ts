@@ -6,7 +6,7 @@ interface IStaff {
   staffId: string
   rates: number
   password: string
-  phoneNumber: string
+  phoneNumber?: string
   designation?: string
   createdBy: Types.ObjectId
   isBlocked: boolean
@@ -41,7 +41,7 @@ const staffSchema = new Schema<IStaff>(
     },
     phoneNumber: {
       type: String,
-      required: true,
+      required: false,
     },
     isBlocked: {
       type: Boolean,

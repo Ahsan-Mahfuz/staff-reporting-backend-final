@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { z } from 'zod'
 import { createStaffSchema } from './staff.validation'
 import { StaffModel } from './staff.model'
+import { generateUniqueStaffId } from './staff.uniqueId'
 
 export const createStaff = async (
   req: Request,
@@ -18,20 +19,8 @@ export const createStaff = async (
       staffImage,
     })
 
-    const generatedStaffId =
-      parsedStaff.name.toLowerCase().replace(/\s+/g, '') +
-      parsedStaff.phoneNumber
-
-    const existingStaff = await StaffModel.findOne({
-      staffId: generatedStaffId,
-    })
-    if (existingStaff) {
-      res.status(409).json({
-        message: 'Staff with this name and phone number already exists.',
-      })
-      return
-    }
-
+    const generatedStaffId = await generateUniqueStaffId()
+    
     const imageUrl = req.file
       ? `/picture/staff_image/${req.file.filename}`
       : null

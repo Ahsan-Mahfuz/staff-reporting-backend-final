@@ -10,6 +10,7 @@ import aboutUsRoutes from './modules/aboutUs/aboutUs.routes'
 import contactUsRoutes from './modules/contactUs/contactUs.routes'
 import privacyPolicyRoutes from './modules/privacyPolicy/privacyPolicy.routes'
 import termsAndConditionsRoutes from './modules/termsAndConditions/termsAndConditions.routes'
+import staffAuthRoutes from './modules/staff_auth/staff_auth.routes'
 
 const app = express()
 
@@ -28,5 +29,6 @@ app.use('/company', aboutUsRoutes)
 app.use('/company', contactUsRoutes)
 app.use('/company', privacyPolicyRoutes)
 app.use('/company', termsAndConditionsRoutes)
+app.use('/staff', staffAuthRoutes)
 
 export default app
