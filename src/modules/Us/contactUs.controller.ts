@@ -36,6 +36,7 @@ export const getContactUs = async (
     const userId = (req as any).user?.userId
 
     const contactUsData = await ContactUsModel.findOne({ createdBy: userId })
+    console.log(contactUsData)
     res.status(200).json({
       message: 'Contact us fetched successfully',
       contactUs: contactUsData?.contactUs,

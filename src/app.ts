@@ -7,6 +7,9 @@ import officeNoticeRoutes from './modules/officeNotice/officeNotice.routes'
 import officeTimeRoutes from './modules/officeTime/officeTime.routes'
 import companyRoutes from './modules/company/company.routes'
 import aboutUsRoutes from './modules/aboutUs/aboutUs.routes'
+import contactUsRoutes from './modules/contactUs/contactUs.routes'
+import privacyPolicyRoutes from './modules/privacyPolicy/privacyPolicy.routes'
+import termsAndConditionsRoutes from './modules/termsAndConditions/termsAndConditions.routes'
 
 const app = express()
 
@@ -22,5 +25,8 @@ app.use('/office', officeNoticeRoutes)
 app.use('/office-time', officeTimeRoutes)
 app.use('/company', companyRoutes)
 app.use('/company', aboutUsRoutes)
+app.use('/company', contactUsRoutes)
+app.use('/company', privacyPolicyRoutes)
+app.use('/company', termsAndConditionsRoutes)
 
 export default app

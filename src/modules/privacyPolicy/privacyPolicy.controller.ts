@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { ContactUsModel } from './contactUs.model'
+import { PrivacyPolicyModel } from './privacyPolicy.model'
 
-export const updateContactUs = async (
+export const updatedPrivacyPolicy = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -13,21 +13,21 @@ export const updateContactUs = async (
       return
     }
 
-    const updatedContactUs = await ContactUsModel.findOneAndUpdate(
+    const updatedPrivacyPolicy = await PrivacyPolicyModel.findOneAndUpdate(
       { createdBy: userId },
-      { $set: { contactUs: req.body.contactUs } },
+      { $set: { privacyPolicy: req.body.privacyPolicy } },
       { new: true, upsert: true }
     )
 
     res.status(200).json({
-      message: 'Contact us updated successfully',
+      message: 'Privacy policy updated successfully',
     })
   } catch (error) {
     next(error)
   }
 }
 
-export const getContactUs = async (
+export const getPrivacyPolicy = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -35,10 +35,12 @@ export const getContactUs = async (
   try {
     const userId = (req as any).user?.userId
 
-    const contactUsData = await ContactUsModel.findOne({ createdBy: userId })
+    const privacyPolicy = await PrivacyPolicyModel.findOne({
+      createdBy: userId,
+    })
     res.status(200).json({
-      message: 'Contact us fetched successfully',
-      contactUs: contactUsData?.contactUs,
+      message: 'Privacy policy fetched successfully',
+      privacyPolicy: privacyPolicy?.privacyPolicy,
     })
   } catch (error) {
     next(error)
