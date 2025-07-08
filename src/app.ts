@@ -5,6 +5,8 @@ import clientRoutes from './modules/client/client.routes'
 import staffRoutes from './modules/staff/staff.routes'
 import officeNoticeRoutes from './modules/officeNotice/officeNotice.routes'
 import officeTimeRoutes from './modules/officeTime/officeTime.routes'
+import companyRoutes from './modules/company/company.routes'
+import aboutUsRoutes from './modules/aboutUs/aboutUs.routes'
 
 const app = express()
 
@@ -18,5 +20,7 @@ app.use('/client', clientRoutes)
 app.use('/staff', staffRoutes)
 app.use('/office', officeNoticeRoutes)
 app.use('/office-time', officeTimeRoutes)
+app.use('/company', companyRoutes)
+app.use('/company', aboutUsRoutes)
 
 export default app

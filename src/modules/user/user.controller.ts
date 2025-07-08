@@ -326,3 +326,73 @@ export const changePasswordUser = async (
     next(error)
   }
 }
+
+export const getMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.userId
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized Access' })
+      return
+    }
+
+    const user = await UserModel.findById(userId).select(
+      'name email profileImage'
+    )
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    res
+      .status(200)
+      .json({ message: 'User profile fetched successfully', data: user })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updateMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.userId
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized Access' })
+      return
+    }
+
+    const { name } = req.body
+    const profileImage = req.file
+      ? `/picture/user_profile_image/${req.file.filename}`
+      : null
+
+    const updatedFields: Partial<{ name: string; profileImage: string }> = {}
+    if (name) updatedFields.name = name
+    if (profileImage) updatedFields.profileImage = profileImage
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { $set: updatedFields },
+      { new: true, runValidators: true }
+    ).select('name email profileImage')
+
+    if (!updatedUser) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    res
+      .status(200)
+      .json({ message: 'User profile updated successfully', data: updatedUser })
+  } catch (error) {
+    next(error)
+  }
+}

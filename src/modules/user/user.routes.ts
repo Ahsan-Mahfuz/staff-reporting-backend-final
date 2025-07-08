@@ -2,13 +2,16 @@ import express from 'express'
 import {
   changePasswordUser,
   forgetPasswordUser,
+  getMyProfile,
   loginUser,
   registerUser,
   setNewPasswordUser,
+  updateMyProfile,
   verificationCodeUser,
 } from './user.controller'
 import { verifyCodeTokenMiddleware } from '../../middlewares/verifyCodeTokenMiddleware'
 import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
+import { userProfileImageUpload } from '../../middlewares/userProfileImageUpload'
 
 const userRoutes = express.Router()
 
@@ -22,5 +25,13 @@ userRoutes.post(
   setNewPasswordUser
 )
 userRoutes.post('/change-password', authenticateAdmin, changePasswordUser)
+
+userRoutes.get('/get-my-profile', authenticateAdmin, getMyProfile)
+userRoutes.patch(
+  '/update-my-profile',
+  authenticateAdmin,
+  userProfileImageUpload.single('userProfileImage'),
+  updateMyProfile
+)
 
 export default userRoutes

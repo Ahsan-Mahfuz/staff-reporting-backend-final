@@ -6,6 +6,7 @@ interface IUser {
   password: string
   resetCode?: number | null
   resetCodeExpires: Date | null
+  profileImage?: string | null
 }
 
 const userSchema = new Schema<IUser>(
@@ -29,6 +30,11 @@ const userSchema = new Schema<IUser>(
     },
     resetCodeExpires: {
       type: Date,
+      default: null,
+    },
+    profileImage: {
+      type: String,
+      required: false,
       default: null,
     },
   },
