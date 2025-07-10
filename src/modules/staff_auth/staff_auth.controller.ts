@@ -27,19 +27,17 @@ export const loginStaffAuth = async (
       return
     }
 
-    if (!existingUser.isBlocked) {
-      res
-        .status(401)
-        .json({
-          message:
-            'You are blocked. Please contact admin to unblock your account.',
-        })
+    if (existingUser.isBlocked) {
+      res.status(401).json({
+        message:
+          'You are blocked. Please contact admin to unblock your account.',
+      })
       return
     }
 
     const token = createToken({
       staffId: existingUser._id,
-      companyId: existingUser.createdBy,
+      userId: existingUser.createdBy,
       staffName: existingUser.name,
       staffPhoneNumber: existingUser.phoneNumber,
     })

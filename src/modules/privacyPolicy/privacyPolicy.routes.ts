@@ -5,6 +5,7 @@ import {
   getPrivacyPolicy,
   updatedPrivacyPolicy,
 } from './privacyPolicy.controller'
+import { authenticateStaff } from '../../middlewares/staffWiseAccessMiddleware'
 
 const privacyPolicyRoutes = express.Router()
 
@@ -16,7 +17,7 @@ privacyPolicyRoutes.patch(
 
 privacyPolicyRoutes.get(
   '/get-privacy-policy',
-  authenticateAdmin,
+  authenticateStaff,
   getPrivacyPolicy
 )
 

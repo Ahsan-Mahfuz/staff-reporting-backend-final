@@ -20,7 +20,7 @@ export const createStaff = async (
     })
 
     const generatedStaffId = await generateUniqueStaffId()
-    
+
     const imageUrl = req.file
       ? `/picture/staff_image/${req.file.filename}`
       : null

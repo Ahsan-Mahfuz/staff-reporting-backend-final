@@ -5,6 +5,7 @@ import {
   getTermsAndConditions,
   updatedTermsAndConditions,
 } from './termsAndConditions.controller'
+import { authenticateStaff } from '../../middlewares/staffWiseAccessMiddleware'
 
 const termsAndConditionsRoutes = express.Router()
 
@@ -16,7 +17,7 @@ termsAndConditionsRoutes.patch(
 
 termsAndConditionsRoutes.get(
   '/get-terms-and-conditions',
-  authenticateAdmin,
+  authenticateStaff,
   getTermsAndConditions
 )
 

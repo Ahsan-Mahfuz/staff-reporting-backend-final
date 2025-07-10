@@ -7,6 +7,7 @@ import {
   deleteOfficeNotice,
   getMyOfficeNotices,
 } from './officeNotice.controller'
+import { authenticateStaff } from '../../middlewares/staffWiseAccessMiddleware'
 
 const officeNoticeRoutes = express.Router()
 
@@ -18,7 +19,7 @@ officeNoticeRoutes.post(
 )
 officeNoticeRoutes.get(
   '/get-all-office-notice',
-  authenticateAdmin,
+  authenticateStaff,
   getMyOfficeNotices
 )
 officeNoticeRoutes.delete(

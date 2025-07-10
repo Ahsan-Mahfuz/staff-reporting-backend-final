@@ -20,7 +20,7 @@ const staffAuthSchema = new Schema<IStaffAuth>(
 
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'User',  
       required: true,
     },
   },

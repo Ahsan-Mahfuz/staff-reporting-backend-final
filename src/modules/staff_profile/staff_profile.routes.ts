@@ -6,7 +6,6 @@ import {
   getSingleStaffProfile,
   updateStaffProfile,
 } from './staff_profile.controller'
-import { uploadStaff } from '../../middlewares/uploadStaff'
 import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
 import { uploadStaffDetailsImages } from '../../middlewares/uploadStaffDetailsImages'
 

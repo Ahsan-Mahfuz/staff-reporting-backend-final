@@ -20,5 +20,5 @@ export const config: Config = {
   host: process.env.HOST || 'localhost',
   db_url: process.env.DB_URL,
   jwt_secret: process.env.JWT_SECRET,
-  jwt_expires_in: process.env.JWT_EXPIRES_IN || '1d',
+  jwt_expires_in: process.env.JWT_EXPIRES_IN || '7d',
 }
