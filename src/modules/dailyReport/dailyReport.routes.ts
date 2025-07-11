@@ -5,11 +5,9 @@ import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
 import {
   createDailyReport,
   getAllDailyReportByAdmin,
+  getAllDailyReportByStaff,
   getSingleDailyReportByAdmin,
   updateDailyReport,
-  //   getAllDailyReports,
-  //   getSingleDailyReport,
-  //   updateDailyReport,
 } from './dailyReport.controller'
 import { authenticateStaff } from '../../middlewares/staffWiseAccessMiddleware'
 import { dailyReportUpload } from '../../middlewares/dailyReportUploads'
@@ -50,10 +48,10 @@ dailyReportRoutes.get(
   getAllDailyReportByAdmin
 )
 
-// dailyReportRoutes.get(
-//   '/get-my-daily-report/:reportId',
-//   authenticateAdmin,
-//   getAllDailyReports
-// )
+dailyReportRoutes.get(
+  '/get-all-daily-report-by-staff',
+  authenticateStaff,
+  getAllDailyReportByStaff
+)
 
 export default dailyReportRoutes

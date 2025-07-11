@@ -23,6 +23,7 @@ interface IDailyReport {
   urgent?: boolean
   staffRef: Types.ObjectId
   createdBy: Types.ObjectId
+  status: string
 }
 
 const dailyReportSchema = new Schema<IDailyReport>(
@@ -69,6 +70,11 @@ const dailyReportSchema = new Schema<IDailyReport>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Approved', 'Canceled'],
+      default: 'Pending',
     },
   },
   { timestamps: true }

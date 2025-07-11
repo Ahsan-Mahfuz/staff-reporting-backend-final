@@ -335,22 +335,9 @@ export const getAllDailyReportByAdmin = async (
       filter.date = { $gte: firstDay, $lte: lastDay }
     }
 
-    const searchRegex = search
-      ? { $regex: new RegExp(search as string, 'i') }
-      : undefined
-
     const reports = await DailyReportModel.find(filter)
       .populate({
         path: 'staffRef',
-        match: searchRegex
-          ? {
-              $or: [
-                { name: searchRegex },
-                { staffId: searchRegex },
-                { designation: searchRegex },
-              ],
-            }
-          : {},
         select:
           '_id name staffId staffImage designation isBlocked password rates',
       })
@@ -358,11 +345,25 @@ export const getAllDailyReportByAdmin = async (
       .limit(limit)
       .lean()
 
-    const formattedReports = reports.map((report) => {
+    const filteredReports = reports.filter((report) => {
+      if (!search || !report.staffRef) return true
+
+      const searchVal = (search as string).toLowerCase()
+      const { name, staffId, designation }: any = report.staffRef
+
+      return (
+        name?.toLowerCase().includes(searchVal) ||
+        staffId?.toLowerCase().includes(searchVal) ||
+        designation?.toLowerCase().includes(searchVal)
+      )
+    })
+
+    const formattedReports = filteredReports.map((report) => {
       const checkIn = report.checkInTime ? parseTime(report.checkInTime) : 0
       const checkOut = report.checkOutTime ? parseTime(report.checkOutTime) : 0
       const breakTime = parseBreakTime(report.breakTime || '0')
       const totalMinutes = Math.max(checkOut - checkIn - breakTime, 0)
+
       return {
         ...report,
         totalWorkedTime: `${Math.floor(totalMinutes / 60)}h ${
@@ -371,16 +372,16 @@ export const getAllDailyReportByAdmin = async (
       }
     })
 
-    const total = await DailyReportModel.countDocuments(filter)
+    const paginatedReports = formattedReports.slice(skip, skip + limit)
 
     res.status(200).json({
       message: 'Report fetched successfully',
-      data: formattedReports,
+      data: paginatedReports,
       pagination: {
-        total,
+        total: formattedReports.length,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(formattedReports.length / limit),
       },
     })
   } catch (error) {
@@ -414,3 +415,129 @@ function parseBreakTime(breakTime: string): number {
       return 0
   }
 }
+
+export const getAllDailyReportByStaff = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.userId
+    const staffId = (req as any).user?.staffId
+
+    if (!userId || !staffId) {
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
+    }
+
+    const user = await StaffModel.findOne({ _id: staffId })
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 10
+    const skip = (page - 1) * limit
+
+    const { date, month, week, year, search } = req.query
+
+    const filter: any = {
+      createdBy: userId,
+      jobNumber: staffId,
+    }
+
+    if (date) {
+      const targetDate = new Date(date as string)
+      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0))
+      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999))
+      filter.date = { $gte: startOfDay, $lte: endOfDay }
+    } else if (month) {
+      const y = year ? parseInt(year as string) : new Date().getFullYear()
+      const firstDay = new Date(`${y}-${month}-01`)
+      const lastDay = new Date(
+        firstDay.getFullYear(),
+        firstDay.getMonth() + 1,
+        0
+      )
+      filter.date = { $gte: firstDay, $lte: lastDay }
+    } else if (week) {
+      const currentDate = new Date()
+      const currentDay = currentDate.getDay()
+      const first =
+        currentDate.getDate() - currentDay + (currentDay === 0 ? -6 : 1)
+      const last = first + 6
+      const firstDay = new Date(currentDate.setDate(first))
+      const lastDay = new Date(currentDate.setDate(last))
+      filter.date = { $gte: firstDay, $lte: lastDay }
+    } else if (year) {
+      const y = parseInt(year as string)
+      const startOfYear = new Date(`${y}-01-01`)
+      const endOfYear = new Date(`${y}-12-31T23:59:59.999Z`)
+      filter.date = { $gte: startOfYear, $lte: endOfYear }
+    }
+
+    const reports = await DailyReportModel.find(filter)
+      .populate({
+        path: 'staffRef',
+        select:
+          '_id name staffId staffImage designation isBlocked password rates',
+      })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+
+    const filteredReports = reports.filter((report) => {
+      if (!search || !report.staffRef) return true
+
+      const searchVal = (search as string).toLowerCase()
+      const { name, staffId, designation }: any = report.staffRef
+
+      return (
+        name?.toLowerCase().includes(searchVal) ||
+        staffId?.toLowerCase().includes(searchVal) ||
+        designation?.toLowerCase().includes(searchVal)
+      )
+    })
+
+    const formattedReports = filteredReports.map((report) => {
+      const checkIn = report.checkInTime ? parseTime(report.checkInTime) : 0
+      const checkOut = report.checkOutTime ? parseTime(report.checkOutTime) : 0
+      const breakTime = parseBreakTime(report.breakTime || '0')
+      const totalMinutes = Math.max(checkOut - checkIn - breakTime, 0)
+
+      return {
+        ...report,
+        totalWorkedTime: `${Math.floor(totalMinutes / 60)}h ${
+          totalMinutes % 60
+        }m`,
+      }
+    })
+
+    const paginatedReports = formattedReports.slice(skip, skip + limit)
+
+    res.status(200).json({
+      message: 'Report fetched successfully',
+      data: paginatedReports,
+      pagination: {
+        total: formattedReports.length,
+        page,
+        limit,
+        totalPages: Math.ceil(formattedReports.length / limit),
+      },
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation Error',
+        errors: error.errors.map((e) => ({
+          field: e.path[0],
+          message: e.message,
+        })),
+      })
+    } else {
+      next(error)
+    }
+  }
+}
+

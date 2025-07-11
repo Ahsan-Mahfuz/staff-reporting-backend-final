@@ -1,3 +1,4 @@
+import { stat } from 'fs'
 import { z } from 'zod'
 
 export const createDailyReportZod = z.object({
@@ -46,6 +47,7 @@ export const createDailyReportZod = z.object({
   urgent: z.boolean().optional(),
   staffRef: z.string().optional(),
   createdBy: z.string().optional(),
+  status: z.enum(['Pending', 'Approved', 'Canceled']).default('Pending'),
 })
 
 export const updateDailyReportZod = createDailyReportZod.partial()
