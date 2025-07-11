@@ -3,6 +3,7 @@ import { Schema, Types, model } from 'mongoose'
 interface IDailyReport {
   checkInTime?: string
   checkOutTime?: string
+  breakTime?: string
   date: Date
   additionalUserId?: string[]
   clientId?: Types.ObjectId
@@ -28,6 +29,7 @@ const dailyReportSchema = new Schema<IDailyReport>(
   {
     checkInTime: { type: String, default: '0' },
     checkOutTime: { type: String, default: '0' },
+    breakTime: { type: String, default: '0' },
     date: {
       type: Date,
       required: true,

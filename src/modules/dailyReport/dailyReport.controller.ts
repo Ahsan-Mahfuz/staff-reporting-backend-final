@@ -6,6 +6,7 @@ import {
 } from './dailyReport.validation'
 import { z } from 'zod'
 import { StaffModel } from '../staff/staff.model'
+import { UserModel } from '../user/user.model'
 
 export const createDailyReport = async (
   req: Request,
@@ -223,41 +224,193 @@ export const updateDailyReport = async (
   }
 }
 
-// export const getSingleDailyReport = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { reportId } = req.params
-//     const report = await DailyReportModel.findById(reportId)
-//       .populate('clientName')
-//       .populate('staffRef')
-//       .populate('additionalUserId')
+export const getSingleDailyReportByAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { reportId } = req.params
+    const userId = (req as any).user?.userId
+    const email = (req as any).user?.email
 
-//     if (!report) {
-//       res.status(404).json({ message: 'Report not found' })
-//       return
-//     }
+    if (!userId && !email) {
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
+    }
 
-//     res.status(200).json({ data: report })
-//   } catch (error) {
-//     next(error)
-//   }
-// }
+    const user = await UserModel.findOne({ email })
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
 
-// export const getAllDailyReports = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const reports = await DailyReportModel.find()
-//       .populate('clientName')
-//       .populate('staffRef')
-//       .populate('additionalUserId')
-//     res.status(200).json({ data: reports })
-//   } catch (error) {
-//     next(error)
-//   }
-// }
+    const report = await DailyReportModel.findOne({
+      _id: reportId,
+      createdBy: userId,
+    })
+      .populate(
+        'staffRef',
+        '_id name staffId staffImage designation isBlocked password rates'
+      )
+      .lean()
+
+    if (!report) {
+      res.status(404).json({ message: 'Report not found' })
+      return
+    }
+
+    res.status(200).json({
+      message: 'Report fetched successfully',
+      data: {
+        ...report,
+      },
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation Error',
+        errors: error.errors.map((e) => ({
+          field: e.path[0],
+          message: e.message,
+        })),
+      })
+      return
+    }
+
+    next(error)
+  }
+}
+
+export const getAllDailyReportByAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?.userId
+    const email = (req as any).user?.email
+
+    if (!userId && !email) {
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
+    }
+
+    const user = await UserModel.findOne({ email })
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 10
+    const skip = (page - 1) * limit
+
+    const { date, month, week, search } = req.query
+
+    const filter: any = {
+      createdBy: userId,
+    }
+
+    if (date) {
+      filter.date = {
+        $gte: new Date(date as string),
+        $lte: new Date(date as string),
+      }
+    } else if (month) {
+      const year = new Date().getFullYear()
+      const firstDay = new Date(`${year}-${month}-01`)
+      const lastDay = new Date(
+        firstDay.getFullYear(),
+        firstDay.getMonth() + 1,
+        0
+      )
+      filter.date = { $gte: firstDay, $lte: lastDay }
+    } else if (week) {
+      const currentDate = new Date()
+      const first = currentDate.getDate() - currentDate.getDay()
+      const last = first + 6
+      const firstDay = new Date(currentDate.setDate(first))
+      const lastDay = new Date(currentDate.setDate(last))
+      filter.date = { $gte: firstDay, $lte: lastDay }
+    }
+
+    const searchRegex = search
+      ? { $regex: new RegExp(search as string, 'i') }
+      : undefined
+
+    const reports = await DailyReportModel.find(filter)
+      .populate({
+        path: 'staffRef',
+        match: searchRegex
+          ? {
+              $or: [
+                { name: searchRegex },
+                { staffId: searchRegex },
+                { designation: searchRegex },
+              ],
+            }
+          : {},
+        select:
+          '_id name staffId staffImage designation isBlocked password rates',
+      })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+
+    const formattedReports = reports.map((report) => {
+      const checkIn = report.checkInTime ? parseTime(report.checkInTime) : 0
+      const checkOut = report.checkOutTime ? parseTime(report.checkOutTime) : 0
+      const breakTime = parseBreakTime(report.breakTime || '0')
+      const totalMinutes = Math.max(checkOut - checkIn - breakTime, 0)
+      return {
+        ...report,
+        totalWorkedTime: `${Math.floor(totalMinutes / 60)}h ${
+          totalMinutes % 60
+        }m`,
+      }
+    })
+
+    const total = await DailyReportModel.countDocuments(filter)
+
+    res.status(200).json({
+      message: 'Report fetched successfully',
+      data: formattedReports,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation Error',
+        errors: error.errors.map((e) => ({
+          field: e.path[0],
+          message: e.message,
+        })),
+      })
+      return
+    }
+    next(error)
+  }
+}
+
+function parseTime(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number)
+  return hours * 60 + minutes
+}
+
+function parseBreakTime(breakTime: string): number {
+  switch (breakTime) {
+    case '30 minutes':
+      return 30
+    case '1 hour':
+      return 60
+    case '0':
+    default:
+      return 0
+  }
+}

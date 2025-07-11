@@ -4,6 +4,8 @@ import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
 
 import {
   createDailyReport,
+  getAllDailyReportByAdmin,
+  getSingleDailyReportByAdmin,
   updateDailyReport,
   //   getAllDailyReports,
   //   getSingleDailyReport,
@@ -24,6 +26,7 @@ dailyReportRoutes.post(
   ]),
   createDailyReport
 )
+
 dailyReportRoutes.patch(
   '/update-daily-report/:reportId',
   authenticateAdmin,
@@ -34,16 +37,19 @@ dailyReportRoutes.patch(
   ]),
   updateDailyReport
 )
-// dailyReportRoutes.get(
-//   '/get-single-daily-report/:reportId',
-//   authenticateAdmin,
-//   getSingleDailyReport
-// )
-// dailyReportRoutes.get(
-//   '/get-all-daily-report/:reportId',
-//   authenticateAdmin,
-//   getAllDailyReports
-// )
+
+dailyReportRoutes.get(
+  '/get-single-daily-report-by-admin/:reportId',
+  authenticateAdmin,
+  getSingleDailyReportByAdmin
+)
+
+dailyReportRoutes.get(
+  '/get-all-daily-report-by-admin',
+  authenticateAdmin,
+  getAllDailyReportByAdmin
+)
+
 // dailyReportRoutes.get(
 //   '/get-my-daily-report/:reportId',
 //   authenticateAdmin,

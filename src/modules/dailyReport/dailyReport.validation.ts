@@ -13,6 +13,12 @@ export const createDailyReportZod = z.object({
     .refine((val) => !val || /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(val), {
       message: 'Invalid time format, use 24 hour format',
     }),
+  breakTime: z
+    .string()
+    .optional()
+    .refine((val) => !val || ['30 minutes', '1 hour', '0'].includes(val), {
+      message: 'Break time must be either 30 minutes, 1 hour, or 0',
+    }),
   date: z
     .string({
       required_error: 'Date is required',
