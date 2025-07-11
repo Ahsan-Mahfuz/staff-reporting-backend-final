@@ -313,10 +313,10 @@ export const getAllDailyReportByAdmin = async (
     }
 
     if (date) {
-      filter.date = {
-        $gte: new Date(date as string),
-        $lte: new Date(date as string),
-      }
+      const targetDate = new Date(date as string)
+      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0))
+      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999))
+      filter.date = { $gte: startOfDay, $lte: endOfDay }
     } else if (month) {
       const year = new Date().getFullYear()
       const firstDay = new Date(`${year}-${month}-01`)
