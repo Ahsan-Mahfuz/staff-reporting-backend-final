@@ -4,7 +4,7 @@ import { config } from '../config'
 
 interface JwtPayload {
   staffId: string
-  companyId: string
+  userId: string
   staffName: string
   staffPhoneNumber: string
 }
@@ -26,7 +26,7 @@ export const authenticateStaff = (
     const decoded = jwt.verify(token, config.jwt_secret) as JwtPayload
     ;(req as any).user = {
       staffId: decoded.staffId,
-      companyId: decoded.companyId,
+      userId: decoded.userId,
       staffName: decoded.staffName,
       staffPhoneNumber: decoded.staffPhoneNumber,
     }

@@ -12,10 +12,16 @@ import privacyPolicyRoutes from './modules/privacyPolicy/privacyPolicy.routes'
 import termsAndConditionsRoutes from './modules/termsAndConditions/termsAndConditions.routes'
 import staffAuthRoutes from './modules/staff_auth/staff_auth.routes'
 import staffProfileAuthRoutes from './modules/staff_profile/staff_profile.routes'
+import dailyReportRoutes from './modules/dailyReport/dailyReport.routes'
 
 const app = express()
 
-app.use(cors())
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  })
+)
 app.use(express.json())
 
 app.use('/picture', express.static('picture'))
@@ -32,5 +38,6 @@ app.use('/company', privacyPolicyRoutes)
 app.use('/company', termsAndConditionsRoutes)
 app.use('/staff', staffAuthRoutes)
 app.use('/staff', staffProfileAuthRoutes)
+app.use('/daily-report', dailyReportRoutes)
 
 export default app

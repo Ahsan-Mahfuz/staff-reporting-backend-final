@@ -8,6 +8,7 @@ import {
 } from './client.controller'
 import { upload } from '../../middlewares/upload'
 import { authenticateAdmin } from '../../middlewares/userWiseAccessMiddleware'
+import { authenticateStaff } from '../../middlewares/staffWiseAccessMiddleware'
 
 const clientRoutes = express.Router()
 
@@ -23,7 +24,7 @@ clientRoutes.patch(
   upload.single('clientImage'),
   editClient
 )
-clientRoutes.get('/get-all-my-clients', authenticateAdmin, getMyClients)
+clientRoutes.get('/get-all-my-clients', authenticateStaff, getMyClients)
 clientRoutes.get(
   '/get-single-client/:clientId',
   authenticateAdmin,
