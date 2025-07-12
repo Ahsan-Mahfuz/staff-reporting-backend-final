@@ -15,6 +15,7 @@ import staffProfileAuthRoutes from './modules/staff_profile/staff_profile.routes
 import dailyReportRoutes from './modules/dailyReport/dailyReport.routes'
 import notificationsRoutes from './modules/notifications/notifications.routes'
 import calenderRoutes from './modules/calender/calender.routes'
+import sendReminderRoutes from './modules/sendReminder/sendReminder.routes'
 
 const app = express()
 
@@ -43,5 +44,6 @@ app.use('/staff', staffProfileAuthRoutes)
 app.use('/daily-report', dailyReportRoutes)
 app.use('/notification', notificationsRoutes)
 app.use('/calender', calenderRoutes)
+app.use('/reminder', sendReminderRoutes)
 
 export default app

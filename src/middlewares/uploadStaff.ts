@@ -21,9 +21,9 @@ const storage = multer.diskStorage({
 export const uploadStaff = multer({
   storage,
   fileFilter: function (req, file, cb) {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
     if (!allowedTypes.includes(file.mimetype)) {
-      return cb(new Error('Only jpeg, jpg and png files are allowed'))
+      return cb(new Error('Only jpeg, jpg , png and pdf files are allowed'))
     }
     cb(null, true)
   },

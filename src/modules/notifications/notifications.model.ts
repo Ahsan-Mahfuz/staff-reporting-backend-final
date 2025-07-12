@@ -7,6 +7,7 @@ interface INotifications {
   officeNotice?: string
   createdBy: Types.ObjectId
   sendTo?: string
+  reminderId?: Types.ObjectId
 }
 
 const notificationsSchema = new Schema<INotifications>(
@@ -27,6 +28,11 @@ const notificationsSchema = new Schema<INotifications>(
     officeNotice: {
       type: String,
       required: false,
+    },
+    reminderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'SendReminder',
+      default: null,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
