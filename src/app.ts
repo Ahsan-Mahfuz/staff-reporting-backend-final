@@ -16,6 +16,7 @@ import dailyReportRoutes from './modules/dailyReport/dailyReport.routes'
 import notificationsRoutes from './modules/notifications/notifications.routes'
 import calenderRoutes from './modules/calender/calender.routes'
 import sendReminderRoutes from './modules/sendReminder/sendReminder.routes'
+import notesRoutes from './modules/notes/notes.routes'
 
 const app = express()
 
@@ -45,5 +46,6 @@ app.use('/daily-report', dailyReportRoutes)
 app.use('/notification', notificationsRoutes)
 app.use('/calender', calenderRoutes)
 app.use('/reminder', sendReminderRoutes)
+app.use('/note', notesRoutes)
 
 export default app
