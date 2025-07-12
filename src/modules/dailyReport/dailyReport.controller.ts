@@ -7,6 +7,7 @@ import {
 import { z } from 'zod'
 import { StaffModel } from '../staff/staff.model'
 import { UserModel } from '../user/user.model'
+import { NotificationModel } from '../notifications/notifications.model'
 
 export const createDailyReport = async (
   req: Request,
@@ -95,6 +96,15 @@ export const createDailyReport = async (
     validatedData.createdBy = createdBy
 
     const newReport = await DailyReportModel.create(validatedData)
+
+    await NotificationModel.create({
+      createdBy,
+      staffId,
+      date: new Date(),
+      status: 'unread',
+      officeNotice: `New daily report submitted by Staff ID: ${staffId}`,
+      sendTo: 'admin',
+    })
 
     res.status(201).json({
       message: 'Daily report created successfully',
@@ -197,6 +207,22 @@ export const updateDailyReport = async (
     validatedData.expensesIncurredImage = files?.expensesIncurredImage?.[0]
       ? `/picture/daily_report/${files.expensesIncurredImage[0].filename}`
       : undefined
+
+    if (
+      existingReport.status !== validatedData.status &&
+      ['Approved', 'Declined'].includes(validatedData.status ?? '')
+    ) {
+      await NotificationModel.create({
+        createdBy: userId,
+        staffId: existingReport.jobNumber,
+        date: new Date(),
+        status: 'unread',
+        officeNotice: `Your expense on ${existingReport.date.toLocaleDateString()} has been ${
+          validatedData.status?.toLowerCase() ?? 'updated'
+        }`,
+        sendTo: 'staff',
+      })
+    }
 
     const updatedReport = await DailyReportModel.findByIdAndUpdate(
       reportId,
@@ -541,3 +567,88 @@ export const getAllDailyReportByStaff = async (
   }
 }
 
+export const getAllDailyReportBySuperAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const sId = (req as any).user?.userId
+    const sEmail = (req as any).user?.email
+
+    if (!sId || !sEmail) {
+      res.status(401).json({ message: 'Unauthorized access' })
+      return
+    }
+
+    const user = await UserModel.findOne({ email: sEmail, _id: sId })
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    const { month, week } = req.query
+    const filter: any = {}
+    if (month === 'true') {
+      const today = new Date()
+      today.setUTCHours(23, 59, 59, 999)
+
+      const startDate = new Date(today)
+      startDate.setUTCDate(today.getUTCDate() - 30)
+      startDate.setUTCHours(0, 0, 0, 0)
+
+      filter.date = { $gte: startDate, $lte: today }
+    } else if (week === 'true') {
+      const today = new Date()
+      today.setUTCHours(0, 0, 0, 0)
+
+      const startDate = new Date(today)
+      startDate.setUTCDate(today.getUTCDate() - 7)
+      startDate.setUTCHours(0, 0, 0, 0)
+
+      const endDate = new Date(today)
+      endDate.setUTCDate(today.getUTCDate() - 1)
+      endDate.setUTCHours(23, 59, 59, 999)
+
+      filter.date = { $gte: startDate, $lte: endDate }
+    }
+
+    const reports = await DailyReportModel.find(filter)
+      .populate({
+        path: 'staffRef',
+        select: '_id staffId rates designation',
+      })
+      .lean()
+
+    const formattedReports = reports.map((report) => {
+      const checkIn = report.checkInTime ? parseTime(report.checkInTime) : 0
+      const checkOut = report.checkOutTime ? parseTime(report.checkOutTime) : 0
+      const breakTime = parseBreakTime(report.breakTime || '0')
+      const totalMinutes = Math.max(checkOut - checkIn - breakTime, 0)
+
+      return {
+        ...report,
+        totalWorkedTime: `${Math.floor(totalMinutes / 60)}h ${
+          totalMinutes % 60
+        }m`,
+      }
+    })
+
+    res.status(200).json({
+      message: 'Report fetched successfully',
+      data: formattedReports,
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation Error',
+        errors: error.errors.map((e) => ({
+          field: e.path[0],
+          message: e.message,
+        })),
+      })
+      return
+    }
+    next(error)
+  }
+}

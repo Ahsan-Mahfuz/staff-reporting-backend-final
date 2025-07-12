@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { createOfficeNoticeSchema } from './officeNotice.validation'
 import { z } from 'zod'
 import { OfficeNoticeModel } from './officeNotice.model'
+import { NotificationModel } from '../notifications/notifications.model'
 
 export const createAOfficeNotice = async (
   req: Request,
@@ -24,6 +25,14 @@ export const createAOfficeNotice = async (
     const createdNotice = await OfficeNoticeModel.create({
       file: req.file ? `/picture/office_notice/${req.file.filename}` : null,
       createdBy,
+    })
+
+    await NotificationModel.create({
+      createdBy,
+      date: new Date(),
+      status: 'unread',
+      officeNotice: `Please check office notice - ${fileName}`,
+      sendTo: 'staff',
     })
 
     res.status(201).json({

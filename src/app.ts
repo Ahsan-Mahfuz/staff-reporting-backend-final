@@ -13,6 +13,7 @@ import termsAndConditionsRoutes from './modules/termsAndConditions/termsAndCondi
 import staffAuthRoutes from './modules/staff_auth/staff_auth.routes'
 import staffProfileAuthRoutes from './modules/staff_profile/staff_profile.routes'
 import dailyReportRoutes from './modules/dailyReport/dailyReport.routes'
+import notificationsRoutes from './modules/notifications/notifications.routes'
 
 const app = express()
 
@@ -39,5 +40,6 @@ app.use('/company', termsAndConditionsRoutes)
 app.use('/staff', staffAuthRoutes)
 app.use('/staff', staffProfileAuthRoutes)
 app.use('/daily-report', dailyReportRoutes)
+app.use('/notification', notificationsRoutes)
 
 export default app

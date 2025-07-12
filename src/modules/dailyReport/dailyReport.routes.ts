@@ -6,6 +6,7 @@ import {
   createDailyReport,
   getAllDailyReportByAdmin,
   getAllDailyReportByStaff,
+  getAllDailyReportBySuperAdmin,
   getSingleDailyReportByAdmin,
   updateDailyReport,
 } from './dailyReport.controller'
@@ -52,6 +53,12 @@ dailyReportRoutes.get(
   '/get-all-daily-report-by-staff',
   authenticateStaff,
   getAllDailyReportByStaff
+)
+
+dailyReportRoutes.get(
+  '/get-all-daily-report-by-superAdmin',
+  authenticateAdmin,
+  getAllDailyReportBySuperAdmin
 )
 
 export default dailyReportRoutes

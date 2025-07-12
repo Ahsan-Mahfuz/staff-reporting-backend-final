@@ -39,6 +39,7 @@ export const registerUser = async (
       userId: newUser._id,
       email: newUser.email,
       name: newUser.name,
+      role: 'admin',
     })
 
     res.status(201).json({
@@ -64,7 +65,7 @@ export const loginUser = async (
 ) => {
   try {
     const validatedData = loginSchema.parse(req.body)
-    const { email, password } = validatedData
+    const { email, password, role } = validatedData
 
     const existingUser = await UserModel.findOne({ email: email })
     if (!existingUser) {
@@ -77,10 +78,19 @@ export const loginUser = async (
       return
     }
 
+    if (existingUser.role === 'admin' && role === 'superadmin') {
+      res.status(401).json({
+        message:
+          'You are not authorized to log in as a super-admin. Please log in as an admin.',
+      })
+      return
+    }
+
     const token = createToken({
       userId: existingUser._id,
       email: existingUser.email,
       name: existingUser.name,
+      role: role || 'admin',
     })
 
     res.status(201).json({

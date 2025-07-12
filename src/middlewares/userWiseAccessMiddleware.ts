@@ -6,6 +6,7 @@ interface JwtPayload {
   userId: string
   email: string
   name: string
+  role: string
 }
 
 export const authenticateAdmin = (
@@ -23,10 +24,12 @@ export const authenticateAdmin = (
   try {
     const token = authHeader.split(' ')[1]
     const decoded = jwt.verify(token, config.jwt_secret) as JwtPayload
+    console.log(decoded)
     ;(req as any).user = {
       userId: decoded.userId,
       email: decoded.email,
       name: decoded.name,
+      role: decoded.role,
     }
     next()
   } catch (error) {

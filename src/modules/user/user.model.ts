@@ -7,6 +7,7 @@ interface IUser {
   resetCode?: number | null
   resetCodeExpires: Date | null
   profileImage?: string | null
+  role: string
 }
 
 const userSchema = new Schema<IUser>(
@@ -36,6 +37,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: false,
       default: null,
+    },
+    role: {
+      type: String,
+      required: true,
+      default: 'admin',
     },
   },
   { timestamps: true }
