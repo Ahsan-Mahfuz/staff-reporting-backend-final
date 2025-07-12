@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { StaffModel } from '../staff/staff.model'
 import { UserModel } from '../user/user.model'
 import { NotificationModel } from '../notifications/notifications.model'
+import { CalenderModel } from '../calender/calender.model'
 
 export const createDailyReport = async (
   req: Request,
@@ -104,6 +105,12 @@ export const createDailyReport = async (
       status: 'unread',
       officeNotice: `New daily report submitted by Staff ID: ${staffId}`,
       sendTo: 'admin',
+    })
+
+    await CalenderModel.create({
+      createdBy,
+      staffId,
+      date: new Date(),
     })
 
     res.status(201).json({
