@@ -36,11 +36,17 @@ export const registerUser = async (
       password: hashedPassword,
     })
 
+    const company = await CompanyModel.findOne({
+      createdBy: newUser._id,
+    })
+
+    const bgColor = company?.color
+
     const token = createToken({
       userId: newUser._id,
       email: newUser.email,
       name: newUser.name,
-      bgColor: newUser.color,
+      bgColor: bgColor,
       role: 'admin',
     })
 
@@ -92,13 +98,13 @@ export const loginUser = async (
       createdBy: existingUser._id,
     })
 
-    const bgColor = company?.color || '#FF0000'
+    const bgColor = company?.color
 
     const token = createToken({
       userId: existingUser._id,
       email: existingUser.email,
       name: existingUser.name,
-      bgColor: existingUser.color,
+      bgColor: bgColor,
       role: role || 'admin',
     })
 

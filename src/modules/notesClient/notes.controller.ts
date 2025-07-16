@@ -74,7 +74,10 @@ export const getAllNoteByClientId = async (req: Request, res: Response) => {
       return
     }
 
-    const notes = await NotesClientModel.find({ clientId, createdBy: userId }).sort({
+    const notes = await NotesClientModel.find({
+      clientId,
+      createdBy: userId,
+    }).sort({
       createdAt: -1,
     })
 

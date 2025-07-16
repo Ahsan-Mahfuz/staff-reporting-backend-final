@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt'
 import { createToken } from '../../utils/jwt'
 import { StaffModel } from '../staff/staff.model'
 import { IUser } from '../user/user.model'
+import { CompanyModel } from '../company/company.model'
 
 export const loginStaffAuth = async (
   req: Request,
@@ -38,9 +39,11 @@ export const loginStaffAuth = async (
       return
     }
 
-    const admin = existingUser.createdBy as unknown as IUser
+    const company = await CompanyModel.findOne({
+      createdBy: existingUser.createdBy,
+    })
 
-    console.log(admin.color)
+    const bgColor = company?.color
 
     const token = createToken({
       staffId: existingUser._id,
@@ -50,7 +53,7 @@ export const loginStaffAuth = async (
       staffPhoneNumber: existingUser.phoneNumber,
       staffDesignation: existingUser.designation,
       staffImage: existingUser.staffImage,
-      bgColor: admin.color,
+      bgColor: bgColor,
     })
 
     res.status(201).json({

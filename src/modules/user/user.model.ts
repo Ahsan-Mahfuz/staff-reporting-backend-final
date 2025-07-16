@@ -8,7 +8,6 @@ export interface IUser {
   resetCodeExpires: Date | null
   profileImage?: string | null
   role: string
-  color: string
 }
 
 const userSchema = new Schema<IUser>(
@@ -22,11 +21,7 @@ const userSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
-    color: {
-      type: String,
-      required: true,
-      default: '#FF0000',
-    },
+
     password: {
       type: String,
       required: true,
