@@ -13,6 +13,7 @@ import bcrypt from 'bcrypt'
 import { createToken } from '../../utils/jwt'
 import nodemailer from 'nodemailer'
 import { CustomRequest } from './user.types'
+import { CompanyModel } from '../company/company.model'
 
 export const registerUser = async (
   req: Request,
@@ -86,6 +87,12 @@ export const loginUser = async (
       })
       return
     }
+
+    const company = await CompanyModel.findOne({
+      createdBy: existingUser._id,
+    })
+
+    const bgColor = company?.color || '#FF0000'
 
     const token = createToken({
       userId: existingUser._id,

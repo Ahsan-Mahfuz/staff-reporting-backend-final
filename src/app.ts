@@ -17,6 +17,7 @@ import notificationsRoutes from './modules/notifications/notifications.routes'
 import calenderRoutes from './modules/calender/calender.routes'
 import sendReminderRoutes from './modules/sendReminder/sendReminder.routes'
 import notesRoutes from './modules/notes/notes.routes'
+import notesClientRoutes from './modules/notesClient/notes.routes'
 
 const app = express()
 
@@ -47,5 +48,6 @@ app.use('/notification', notificationsRoutes)
 app.use('/calender', calenderRoutes)
 app.use('/reminder', sendReminderRoutes)
 app.use('/note', notesRoutes)
+app.use('/note-client', notesClientRoutes)
 
 export default app
