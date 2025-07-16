@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose'
 
-interface IUser {
+export interface IUser {
   name: string
   email: string
   password: string
@@ -8,6 +8,7 @@ interface IUser {
   resetCodeExpires: Date | null
   profileImage?: string | null
   role: string
+  color: string
 }
 
 const userSchema = new Schema<IUser>(
@@ -20,6 +21,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+    },
+    color: {
+      type: String,
+      required: true,
+      default: '#FF0000',
     },
     password: {
       type: String,

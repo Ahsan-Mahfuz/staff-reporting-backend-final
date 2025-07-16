@@ -5,6 +5,7 @@ import {
   createNote,
   deleteNoteStaffId,
   getAllNoteByStaffId,
+  getSingleNoteByStaffId,
 } from './notes.controller'
 
 const notesRoutes = express.Router()
@@ -16,6 +17,7 @@ notesRoutes.get(
   authenticateAdmin,
   getAllNoteByStaffId
 )
-notesRoutes.get('/delete-note/:notesId', authenticateAdmin, deleteNoteStaffId)
+notesRoutes.delete('/delete-note/:notesId', authenticateAdmin, deleteNoteStaffId)
+notesRoutes.get('/get-single-one-get-note/:staffId', authenticateAdmin, getSingleNoteByStaffId)
 
 export default notesRoutes

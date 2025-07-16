@@ -16,7 +16,7 @@ const companySchema = new Schema<ICompany>(
     color: {
       type: String,
       required: false,
-      default: null,
+      default: "#FF0000",
     },
     createdBy: {
       type: Schema.Types.ObjectId,

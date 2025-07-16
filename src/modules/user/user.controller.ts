@@ -39,6 +39,7 @@ export const registerUser = async (
       userId: newUser._id,
       email: newUser.email,
       name: newUser.name,
+      bgColor: newUser.color,
       role: 'admin',
     })
 
@@ -90,6 +91,7 @@ export const loginUser = async (
       userId: existingUser._id,
       email: existingUser.email,
       name: existingUser.name,
+      bgColor: existingUser.color,
       role: role || 'admin',
     })
 

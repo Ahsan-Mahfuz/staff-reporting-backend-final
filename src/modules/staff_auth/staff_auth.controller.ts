@@ -5,6 +5,7 @@ import { StaffAuthModel } from './staff_auth.model'
 import bcrypt from 'bcrypt'
 import { createToken } from '../../utils/jwt'
 import { StaffModel } from '../staff/staff.model'
+import { IUser } from '../user/user.model'
 
 export const loginStaffAuth = async (
   req: Request,
@@ -15,7 +16,9 @@ export const loginStaffAuth = async (
     const validatedData = staffLoginSchema.parse(req.body)
     const { staffId, password } = validatedData
 
-    const existingUser = await StaffModel.findOne({ staffId: staffId })
+    const existingUser = await StaffModel.findOne({
+      staffId: staffId,
+    }).populate('createdBy')
 
     if (!existingUser) {
       res.status(401).json({ message: 'The credentials are incorrect' })
@@ -35,11 +38,19 @@ export const loginStaffAuth = async (
       return
     }
 
+    const admin = existingUser.createdBy as unknown as IUser
+
+    console.log(admin.color)
+
     const token = createToken({
       staffId: existingUser._id,
-      userId: existingUser.createdBy,
+      staffLoginId: existingUser.staffId,
+      userId: existingUser.createdBy._id,
       staffName: existingUser.name,
       staffPhoneNumber: existingUser.phoneNumber,
+      staffDesignation: existingUser.designation,
+      staffImage: existingUser.staffImage,
+      bgColor: admin.color,
     })
 
     res.status(201).json({

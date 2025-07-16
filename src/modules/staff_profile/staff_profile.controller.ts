@@ -130,7 +130,23 @@ export const getAllStaffProfiles = async (
       return
     }
 
-    const allStaff = await StaffModel.find({ createdBy: adminId }).lean()
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 10
+    const skip = (page - 1) * limit
+
+    const { search } = req.query
+
+    let filter: any = { createdBy: adminId }
+
+    if (search && typeof search === 'string') {
+      const regex = new RegExp(search, 'i')
+      filter.$or = [{ name: regex }, { phoneNumber: regex }, { staffId: regex }]
+    }
+
+    const totalStaff = await StaffModel.countDocuments(filter)
+
+
+    const allStaff = await StaffModel.find(filter).skip(skip).limit(limit).lean()
 
     const allProfiles = await StaffProfileModel.find()
       .populate({
@@ -169,6 +185,12 @@ export const getAllStaffProfiles = async (
             Qualifications: profile?.Qualifications || null,
           }
         }),
+      pagination: {
+        total: totalStaff,
+        page,
+        limit,
+        pages: Math.ceil(totalStaff / limit),
+      },
     })
   } catch (err) {
     next(err)

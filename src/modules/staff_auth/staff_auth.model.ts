@@ -1,9 +1,10 @@
 import { Schema, Types, model } from 'mongoose'
+import { IUser } from '../user/user.model'
 
-interface IStaffAuth {
+export interface IStaffAuth {
   staffId: string
   password: string
-  createdBy: Types.ObjectId
+  createdBy: Types.ObjectId | IUser
 }
 
 const staffAuthSchema = new Schema<IStaffAuth>(
