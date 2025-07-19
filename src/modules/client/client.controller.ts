@@ -9,6 +9,7 @@ export const createClient = async (
   next: NextFunction
 ) => {
   try {
+    
     const { client } = req.body
     const parsedClient = JSON.parse(client)
 
