@@ -132,7 +132,6 @@ export const forgetPasswordUser = async (
   try {
     const validatedData = forgetPasswordSchema.parse(req.body)
     const { email } = validatedData
-
     const existingUser = await UserModel.findOne({ email })
     if (!existingUser) {
       res.status(401).json({ message: 'The email is not registered' })
@@ -153,6 +152,7 @@ export const forgetPasswordUser = async (
         pass: process.env.EMAIL_PASS,
       },
     })
+
 
     const mailOptions = {
       from: `"Staff Reporting" <${process.env.EMAIL_USER}>`,
