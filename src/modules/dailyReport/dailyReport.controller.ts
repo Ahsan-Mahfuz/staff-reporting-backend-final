@@ -45,13 +45,6 @@ export const createDailyReport = async (
       date: validatedData.date,
     })
 
-    if (existingReport) {
-      res.status(400).json({
-        message: 'You have already created a report for today',
-      })
-      return
-    }
-
     const files = req.files as {
       issueOrDelaysImage?: Express.Multer.File[]
       photoOrFileUploaded?: Express.Multer.File[]
@@ -96,8 +89,23 @@ export const createDailyReport = async (
     validatedData.jobNumber = staffId
     validatedData.createdBy = createdBy
 
-    const newReport = await DailyReportModel.create(validatedData)
-
+    if (existingReport) {
+      const updatedReport = await DailyReportModel.findByIdAndUpdate(
+        existingReport._id,
+        { $set: validatedData },
+        { new: true }
+      )
+      res.status(200).json({
+        message: 'Daily report updated successfully',
+        data: updatedReport,
+      })
+    } else {
+      const newReport = await DailyReportModel.create(validatedData)
+      res.status(201).json({
+        message: 'Daily report created successfully',
+        data: newReport,
+      })
+    }
     await NotificationModel.create({
       createdBy,
       staffId,
@@ -106,16 +114,10 @@ export const createDailyReport = async (
       officeNotice: `New daily report submitted by Staff ID: ${staffId}`,
       sendTo: 'admin',
     })
-
     await CalenderModel.create({
       createdBy,
       staffId,
       date: new Date(),
-    })
-
-    res.status(201).json({
-      message: 'Daily report created successfully',
-      data: newReport,
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
