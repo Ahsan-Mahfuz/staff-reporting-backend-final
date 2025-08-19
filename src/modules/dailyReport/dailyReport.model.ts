@@ -28,9 +28,9 @@ interface IDailyReport {
 
 const dailyReportSchema = new Schema<IDailyReport>(
   {
-    checkInTime: { type: String, default: '0' },
-    checkOutTime: { type: String, default: '0' },
-    breakTime: { type: String, default: '0' },
+    checkInTime: { type: String, default: null },
+    checkOutTime: { type: String, default: null },
+    breakTime: { type: String, default: null },
     date: {
       type: Date,
       required: true,

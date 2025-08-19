@@ -89,21 +89,21 @@ export const editStaff = async (
       return
     }
 
-    const generatedStaffId =
-      parsedStaff.name.toLowerCase().replace(/\s+/g, '') +
-      parsedStaff.phoneNumber
+    // const generatedStaffId =
+    //   parsedStaff.name.toLowerCase().replace(/\s+/g, '') +
+    //   parsedStaff.phoneNumber
 
-    const duplicate = await StaffModel.findOne({
-      staffId: generatedStaffId,
-      _id: { $ne: staffId },
-    })
-    if (duplicate) {
-      res.status(409).json({
-        message:
-          'Another staff with this name and phone number already exists.',
-      })
-      return
-    }
+    // const duplicate = await StaffModel.findOne({
+    //   staffId: generatedStaffId,
+    //   _id: { $ne: staffId },
+    // })
+    // if (duplicate) {
+    //   res.status(409).json({
+    //     message:
+    //       'Another staff with this name and phone number already exists.',
+    //   })
+    //   return
+    // }
 
     const imageUrl = req.file
       ? `/picture/staff_image/${req.file.filename}`
@@ -112,7 +112,7 @@ export const editStaff = async (
     targetStaff.name = parsedStaff.name
     targetStaff.phoneNumber = parsedStaff.phoneNumber
     targetStaff.rates = parsedStaff.rates
-    targetStaff.staffId = generatedStaffId
+    // targetStaff.staffId = generatedStaffId
     targetStaff.staffImage = imageUrl
 
     await targetStaff.save()

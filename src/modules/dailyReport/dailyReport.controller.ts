@@ -32,6 +32,8 @@ export const createDailyReport = async (
 
     const validatedData = createDailyReportZod.parse(req.body)
 
+    console.log("validatedData", validatedData);
+
     const createdBy = (req as any).user?.userId
     const staffId = (req as any).user?.staffId
 
@@ -44,6 +46,8 @@ export const createDailyReport = async (
       staffRef: staffId,
       date: validatedData.date,
     })
+
+    console.log("existingReport", existingReport);
 
     const files = req.files as {
       issueOrDelaysImage?: Express.Multer.File[]
@@ -106,12 +110,14 @@ export const createDailyReport = async (
         data: newReport,
       })
     }
+
+    const user = await StaffModel.findOne({ _id: staffId })
     await NotificationModel.create({
       createdBy,
       staffId,
       date: new Date(),
       status: 'unread',
-      officeNotice: `New daily report submitted by Staff ID: ${staffId}`,
+      officeNotice: `New daily report submitted by Staff Name: ${user?.name}`,
       sendTo: 'admin',
     })
     await CalenderModel.create({
